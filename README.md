@@ -1,0 +1,51 @@
+# Fall Detection using Pose Estimation and Bidirectional LSTM
+
+A vision-based fall detection system that classifies short video sequences as a **fall** or a **normal activity of daily living (ADL)**, using pose-based motion analysis rather than raw pixel classification.
+
+## Why pose-based, not raw video?
+
+Classifying raw pixels requires learning both "what a person looks like" and "what falling looks like" simultaneously — a much harder problem given limited training data. By extracting body pose (joint coordinates) first, the classifier only has to learn the *motion pattern* of a fall, which is a smaller, more learnable problem, and is naturally robust to lighting, clothing, and background differences.
+
+## Pipeline
+```mermaid
+graph LR
+    A[Video] --> B[Frame Extraction<br/>ffmpeg]
+    B --> C[Pose Extraction<br/>MediaPipe: 33 landmarks x,y,z]
+    C --> D[Sliding Window<br/>30 frames, 50% overlap]
+    D --> E[Bidirectional LSTM<br/>+ Attention]
+    E --> F[Fall / ADL]
+```
+
+**Datasets:** [Le2i Fall Detection Dataset](https://www.kaggle.com/datasets/tuyenldvn/falldataset-imvia) (190 usable videos, frame-level fall annotations) combined with the [UR Fall Detection Dataset](https://www.kaggle.com/datasets/shahliza27/ur-fall-detection-dataset) (70 sequences) for additional real fall examples and improved class balance.
+
+**Model:** 2-layer Bidirectional LSTM (hidden_dim=64) with an attention mechanism over the time dimension, trained with weighted loss and weighted sampling to address class imbalance (~85% ADL / ~15% FALL), using early stopping on validation F1.
+
+## Results
+
+Evaluated on a held-out test set (297 windows, never seen during training or validation):
+
+| Metric    |  ADL  | FALL  |
+|-----------|-------|-------|
+| Precision | 0.957 | 0.762 |
+| Recall    | 0.961 | 0.744 |
+| F1        | 0.959 | 0.753 |
+
+**Overall accuracy: 92.9%** — though for a safety-critical, imbalanced task like this, FALL-class F1 (0.753) is the metric that actually matters; accuracy alone is misleading on an ~85/15 class split.
+
+![Training curves](training_curves.png)
+
+## Honest limitations
+
+- Trained on 260 total video/image sequences — a small dataset by deep learning standards; more real fall data would likely improve results further
+- Validation loss shows signs of overfitting past ~epoch 20-30, though F1-based checkpoint selection and early stopping mitigate this
+- Not evaluated on real-world deployment conditions (different camera angles, lighting, occlusion beyond what's in these datasets)
+
+## Running it yourself
+
+1. Download the datasets from the Kaggle links above (Le2i license: research use only, non-commercial)
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run `fall_detection_pipeline.ipynb` — Option B cells (full rebuild) handle pose extraction and windowing from raw data; Option A is a fast-path restore if you already have processed data cached
+
+## Tech stack
+
+Python, PyTorch, MediaPipe, OpenCV, scikit-learn
