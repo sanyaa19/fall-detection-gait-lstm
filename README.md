@@ -7,14 +7,7 @@ A vision-based fall detection system that classifies short video sequences as a 
 Classifying raw pixels requires learning both "what a person looks like" and "what falling looks like" simultaneously — a much harder problem given limited training data. By extracting body pose (joint coordinates) first, the classifier only has to learn the *motion pattern* of a fall, which is a smaller, more learnable problem, and is naturally robust to lighting, clothing, and background differences.
 
 ## Pipeline
-```mermaid
-graph LR
-    A[Video] --> B[Frame Extraction<br/>ffmpeg]
-    B --> C[Pose Extraction<br/>MediaPipe: 33 landmarks x,y,z]
-    C --> D[Sliding Window<br/>30 frames, 50% overlap]
-    D --> E[Bidirectional LSTM<br/>+ Attention]
-    E --> F[Fall / ADL]
-```
+![Pipeline](fall_detection_pipeline_diagram.png)
 
 **Datasets:** [Le2i Fall Detection Dataset](https://www.kaggle.com/datasets/tuyenldvn/falldataset-imvia) (190 usable videos, frame-level fall annotations) combined with the [UR Fall Detection Dataset](https://www.kaggle.com/datasets/shahliza27/ur-fall-detection-dataset) (70 sequences) for additional real fall examples and improved class balance.
 
