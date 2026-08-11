@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+pose_data/
+urfd_data/
+*.zip
+.DS_Store
