@@ -29,9 +29,9 @@ Evaluated on a held-out test set (297 windows, never seen during training or val
 
 ## Honest limitations
 
-- Trained on 260 total video/image sequences — a small dataset by deep learning standards; more real fall data would likely improve results further
+- Trained on 260 total video/image sequences - a small dataset by deep learning standards; more real fall data would likely improve results further
 - Validation loss shows signs of overfitting past ~epoch 20-30, though F1-based checkpoint selection and early stopping mitigate this
-- Not evaluated on real-world deployment conditions (different camera angles, lighting, occlusion beyond what's in these datasets)
+- **Qualitative testing on out-of-distribution footage revealed a consistent failure mode**: the model correctly detects genuine falls with high precision timing (e.g., flagged a real fall accurately within its exact ~2-second occurrence window), but also over-triggers on other fast vertical movements it never saw during training - jumping, bending down, and crouching all get misclassified as falls with high confidence. This happens because the training datasets (Le2i, URFD) only contain slow normal activity and sudden uncontrolled falls, with no "fast but intentional" movement as a contrasting example. A clear next step would be adding hard-negative training examples covering athletic movement and bending/crouching.
 
 ## Running it yourself
 
