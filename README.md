@@ -6,6 +6,8 @@ A vision-based fall detection system that classifies short video sequences as a 
 
 Classifying raw pixels requires learning both "what a person looks like" and "what falling looks like" simultaneously — a much harder problem given limited training data. By extracting body pose (joint coordinates) first, the classifier only has to learn the *motion pattern* of a fall, which is a smaller, more learnable problem, and is naturally robust to lighting, clothing, and background differences.
 
+This also matters for the intended use case: fall detection is most valuable in elderly care and healthcare settings - homes, assisted living facilities, hospital wards - where continuous video monitoring raises real privacy concerns. Since pose extraction strips away all visually identifiable information (faces, clothing, room details) at the very first processing step, the model only ever operates on abstract joint coordinates, not raw footage. This makes the approach far more privacy-appropriate for deployment in sensitive, monitored spaces than a system trained directly on pixels.
+
 ## Pipeline
 ![Pipeline](fall_detection_pipeline_diagram.png)
 
